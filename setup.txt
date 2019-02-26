@@ -1,0 +1,270 @@
+psql cs421 --echo-all <<-END 2>&1 | tee setup.log
+
+CREATE TABLE Clients (
+clientID int NOT NULL, 
+name varchar(100) NOT NULL, 
+address varchar(100) NOT NULL,
+ email varchar(100),
+ tel_no varchar(100), 
+PRIMARY KEY(clientID)
+);
+ 
+CREATE TABLE Personal (
+clientID int NOT NULL, 
+gender varchar(1),
+ date_of_birth date NOT NULL,
+ occupation varchar(100), 
+SIN varchar(11) NOT NULL, 
+PRIMARY KEY(clientID), 
+FOREIGN KEY(clientID) REFERENCES Clients(clientID)
+);
+ 
+CREATE TABLE Business (
+clientID int NOT NULL, 
+start_date date, 
+size int,
+type varchar(100),
+gov_reg_no int NOT NULL, 
+PRIMARY KEY(clientID), 
+FOREIGN KEY(clientID) REFERENCES Clients(clientID)
+); 
+
+CREATE TABLE Branch (
+branchID int NOT NULL, 
+address varchar(100) NOT NULL, 
+num_employees int, 
+PRIMARY KEY(branchID)
+);
+
+CREATE TABLE Employees (
+employeeID int NOT NULL,
+name varchar(30) NOT NULL, 
+gender varchar(6), 
+date_of_birth date, 
+department varchar(15), 
+tel_no varchar(20), branchID int NOT NULL, 
+PRIMARY KEY(employeeID), 
+FOREIGN KEY(branchID) REFERENCES Branch(branchID)
+);
+
+CREATE TABLE Worksfor (
+subordinateID int NOT NULL, 
+supervisorID int NOT NULL, 
+PRIMARY KEY(subordinateID), 
+FOREIGN KEY(subordinateID) REFERENCES Employees(employeeID), 
+FOREIGN KEY(supervisorID) REFERENCES Employees(employeeID)
+);
+
+CREATE TABLE Accounts (
+	acc_no int NOT NULL,
+	clientID int NOT NULL,
+	balance NUMERIC(12,2) NOT NULL CHECK (balance > 0),
+	interest_rate NUMERIC(5,2) CHECK (interest_rate < 100),
+	minimum_balance NUMERIC(5,2),
+	monthly_fee NUMERIC(5,2),
+	PRIMARY KEY (acc_no),
+	FOREIGN KEY (clientID) REFERENCES Clients(clientID)
+);
+
+CREATE TABLE Transactions (
+	transactionID int NOT NULL,
+	acc_no int NOT NULL,
+	amount NUMERIC(10, 2) NOT NULL,
+	date DATE,
+	type VARCHAR(20),
+	description VARCHAR(200),
+	PRIMARY KEY (transactionID),
+	FOREIGN KEY (acc_no) REFERENCES Accounts(acc_no)
+);
+
+CREATE TABLE Records (
+	recordID int NOT NULL PRIMARY KEY,
+	employeeID int NOT NULL,
+	acc_no int NOT NULL,
+	date DATE,
+	comment VARCHAR(200),
+	FOREIGN KEY (employeeID) REFERENCES Employees(employeeID),
+	FOREIGN KEY (acc_no) REFERENCES Accounts(acc_no)
+);
+
+
+
+CREATE TABLE Appointments
+(
+	appointmentID INTEGER NOT NULL,
+	employeeID INTEGER,
+	clientID INTEGER,
+	date DATE,
+	time TIME,
+	PRIMARY KEY(appointmentID),
+FOREIGN KEY(employeeID) REFERENCES Employees(employeeID),
+FOREIGN KEY(clientID) REFERENCES Clients(clientID)	
+);
+
+
+CREATE TABLE Loans
+(
+	loanID INTEGER NOT NULL,
+	clientID INTEGER,
+	interest_rate FLOAT,
+	amount FLOAT,
+	due_date DATE,
+	PRIMARY KEY(loanID),
+	FOREIGN KEY(clientID) REFERENCES Clients(clientID)
+);
+
+CREATE TABLE Payments
+(
+	loanID INTEGER NOT NULL,
+	payment_no INTEGER,
+	amount FLOAT,
+	date DATE,
+	PRIMARY KEY(loanID, payment_no),
+	FOREIGN KEY(loanID) REFERENCES Loans(loanID)
+);
+
+INSERT INTO Clients VALUES(1, 'Miles Stewart', '3455 Rue Stanley, Montreal, QC, H3A 1S3', 'miles.stewart@gmail.com', '514-103-2222');
+INSERT INTO Clients VALUES(2, 'Steve Renner, '3999 Rue Hutchison, Montreal, QC, H2W 1A2', 'steverenner01@aol.com', '438-100-200');
+INSERT INTO Clients VALUES(3, 'Bruce Watson', '4555 Rue Aylmer, Montreal, QC, H6H 4UT', 'bruce.watson@hotmail.com', '438-202-3456');
+INSERT INTO Clients VALUES(4, 'Camille Lopez', '2011 Rue Bleury, Montreal, QC, H3A 4T5', 'lopez.camilla@yahoo.com', '514-333-2016');
+INSERT INTO Clients VALUES(5, 'Diana Wan', '501 Rue St. Famille, Montreal, QC, H4C 3T5', 'diana.wan02@gmail.com', '438-410-3000');
+INSERT INTO Clients VALUES(6, 'Lamie', '3444 Boul. St. Laurent, Montreal, QC, H4Y 1R4', 'lamie.resto@gmail.com', '514-843-5652');
+INSERT INTO Clients VALUES(7, 'Cafe Castel', '1015 Rue Sherbrooke Ouest, Montreal, QC, H3A 1G5', 'cafe.castel@gmail.com', '514-285-6514');
+INSERT INTO Clients VALUES(8, 'Indigo Bookstore', '1500 McGill College Ave, Montreal, QC, H3A 3J5', 'finance@indigo.ca', '514-281-5549');
+INSERT INTO Clients VALUES(9, 'Restaurant Boustan', '2020 Rue Crescent, Montreal, QC, H3G 2B8', 'restaurant.boustan@gmail.com', '514-843-3194');
+INSERT INTO Clients VALUES(10,'Tommy Cafe', '200 Rue Notre Dame Ouest, Montreal, QC, H2Y 1T3', 'tommy.montreal@gmail.com', '514-903-8669');
+
+ 
+INSERT INTO Personal VALUES(1, 'M', '1970-05-29', 'Engineer', '123-456-789');
+INSERT INTO Personal VALUES(2, 'M', '1918-07-04', 'Military', '222-333-444');
+INSERT INTO Personal VALUES(3, 'M', '1969-12-18', 'Researcher', '323-141-333');
+INSERT INTO Personal VALUES(4, 'M', '2000-12-12', 'Student', '444-333-222');
+INSERT INTO Personal VALUES(5, 'F', '1928-01-01', 'Business owner', '214-212-216');
+
+INSERT INTO Business VALUES(6, '2017-06-06', 4, 'Sole Proprietorship', '12345678');
+INSERT INTO Business VALUES(7, '1988-10-20', 8, 'Corporation', '23456789');
+INSERT INTO Business VALUES(8, '1996-01-05', 200, 'Corporation', '11223344');
+INSERT INTO Business VALUES(9, '1986-02-03', 200, 'Corporation', '12341234');
+INSERT INTO Business VALUES(10, '2010-10-06', 12, 'Sole Proprietorship', '43214321'); 
+
+
+
+INSERT INTO branch VALUES(1, '3590 BOUL SAINT-LAURENT, MONTREAL, PQ, H2X2V3', 2);
+INSERT INTO Branch VALUES(2, '3745 BLVD ST-LAURENT, MONTREAL, QC, H2W1X8', 3);
+INSERT INTO Branch VALUES(3, '1401 RUE BLEURY, MONTREAL, PQ, H3A2H6', 5);
+INSERT INTO Branch VALUES(4, '915 RUE ONTARIO E, MONTREAL, PQ, H2L1P6', 4);
+INSERT INTO Branch VALUES(5, '462 RUE STE-CATHERINE O, MONTREAL, QC, H3B1A6', 3);
+INSERT INTO Branch VALUES(6, '2001 BOUL ROBERT-BOURASSA, MONTREAL, PQ, H3A2A6', 1);
+
+INSERT INTO Employees VALUES(1, 'Mikel Robert', 'M', '1990-01-06', 'CustomerService', '438-101-106', 1);
+INSERT INTO Employees VALUES(2, 'Arnold Page', 'M', '1989-12-13', 'Accounting', '438-012-013', 1);
+
+INSERT INTO Employees VALUES(3, 'Marnie Small', 'F', '1995-02-03', 'Accounting', '438-202-303', 2);
+INSERT INTO Employees VALUES(4, 'Lester Lacey', 'M', '1989-02-09', 'IT', '514-202-909', 2);
+INSERT INTO Employees VALUES(5, 'Katie Martinson', 'F', '1960-03-27', 'CustomerService', '514-303-027', 2);
+
+INSERT INTO Employees VALUES(6, 'Kaito Hackett', 'M', '1985-07-31', 'CustomerService', '610-707-031', 3);
+INSERT INTO Employees VALUES(7, 'Tyson Dawson', 'M', '1968-03-10', 'HR', '514-030-010', 3);
+INSERT INTO Employees VALUES(8, 'Roseann Lowe', 'F', '1996-05-06', 'Accounting', '610-505-006', 3);
+INSERT INTO Employees VALUES(9, 'Jasmine Stephens', 'F', '1982-08-16', 'IT', '438-808-160', 3);
+INSERT INTO Employees VALUES(10, 'Luella Jerome', 'F', '1968-10-22', 'Accounting', '438-010-022', 3);
+
+INSERT INTO Employees VALUES(11, 'Ren Tachibana', 'Male ', '1991-10-18', 'IT', '438-010-018', 4);
+INSERT INTO Employees VALUES(12, 'Jiang Abe', 'M', '1986-06-30', 'CustomerService', '438-606-300', 4);
+INSERT INTO Employees VALUES(13, 'Makoto Mah', 'M', '1988-07-03','Accounting', '438-707-303', 4);
+INSERT INTO Employees VALUES(14, 'Joon Tanaka', 'M', '1966-07-22', 'HR', '438-707-022', 4);
+
+INSERT INTO Employees VALUES(15, 'Haruko Lam', 'F', '1980-02-29', 'CustomerService', '514-888-888', 5);
+INSERT INTO Employees VALUES(16, 'Yeong-Hwan Maeda', 'M', '1973-03-05', 'Accounting', '438-303-505', 5);
+INSERT INTO Employees VALUES(17, 'Youko Rhee', 'F', '1974-05-17', 'HR', '438-500-170', 5);
+
+INSERT INTO Employees VALUES(18, 'Seo-Joon Park', 'M', '1977-03-01', 'Accounting', '438-300-100', 6);
+
+INSERT INTO Worksfor VALUES(1, 2);
+INSERT INTO Worksfor VALUES(3, 5);
+INSERT INTO Worksfor VALUES(4, 5);
+INSERT INTO Worksfor VALUES(6, 10);
+INSERT INTO Worksfor VALUES(7, 10);
+INSERT INTO Worksfor VALUES(8, 10);
+INSERT INTO Worksfor VALUES(9, 10);
+INSERT INTO Worksfor VALUES(11, 14);
+INSERT INTO Worksfor VALUES(12, 14);
+INSERT INTO Worksfor VALUES(13, 14);
+INSERT INTO Worksfor VALUES(15, 17);
+INSERT INTO Worksfor VALUES(16, 17);
+
+
+
+INSERT INTO Accounts VALUES (3284732, 4, 3304.25, 2.00, 20.00, 10.75);
+INSERT INTO Accounts VALUES (5203901, 5, 130943.00, 2.50, 100.00, 15.95);
+INSERT INTO Accounts VALUES (4913205, 6, 500.75, 2.20, 10.00, 0.00);
+INSERT INTO Accounts VALUES (3285209, 10, 10294.42, 1.50, 20.00, 15.95);
+INSERT INTO Accounts VALUES (7028402, 10, 309.40, 2.05, 10.00, 0.00);
+INSERT INTO Accounts VALUES (6094813, 3, 5013.48, 2.30, 50.00, 15.95);
+INSERT INTO Accounts VALUES (3502059, 2, 2031.85, 2.00, 50.00, 10.75);
+INSERT INTO Accounts VALUES (5203384, 6, 70139.34, 2.10, 100.00, 10.75);
+INSERT INTO Accounts VALUES (4910580, 8, 1803.34, 1.50, 20.00, 10.75);
+INSERT INTO Accounts VALUES (4823281, 1, 455.23, 2.50, 10.00, 0.00);
+INSERT INTO Accounts VALUES (5382083, 7, 3304.25, 2.00, 20.00, 10.75);
+
+
+
+INSERT INTO Transactions VALUES (02285, 4823281, -73.32, '2018-02-15', 'PM', 'Bell Internet');
+INSERT INTO Transactions VALUES (28903, 5203901, 150.00, '2017-12-13', 'DP', 'Personal Deposit');
+INSERT INTO Transactions VALUES (23450, 4910580, -40.00, '2018-01-10', 'WD', 'Withdrawal at ATM');
+INSERT INTO Transactions VALUES (39038, 3284732, -3354.75, '2018-01-30', 'PM', 'McGill University');
+INSERT INTO Transactions VALUES (98304, 5382083, 3.45, '2017-10-10', 'IN', 'Interest from Savings Account');
+INSERT INTO Transactions VALUES (93170, 6094813, -200.00, '2018-01-04', 'WD', 'Withdrawal at Rue University branch');
+INSERT INTO Transactions VALUES (41938, 4910580, 1930.32, '2018-02-15', 'CR', 'Wire Transfer');
+INSERT INTO Transactions VALUES (58393, 6094813, -34.02, '2017-06-04', 'PM', 'Provigo Groceries');
+INSERT INTO Transactions VALUES (04212, 7028402, 55.00, '2018-02-04', 'DP', 'Cheque Deposit at branch');
+INSERT INTO Transactions VALUES (84038, 3502059, -20.32, '2017-11-24', 'PM', 'Jean Coutu Rue St Marc');
+
+INSERT INTO Records VALUES (0132, 18, 3502059, '2018-02-12', 'Opened a new credit card for client');
+INSERT INTO Records VALUES (1391, 12, 5203384, '2017-08-22', 'Client made a deposit using a cheque');
+INSERT INTO Records VALUES (0381, 6, 4823281, '2018-02-12', 'Decreased account monthly fee');
+INSERT INTO Records VALUES (0730, 5, 4913205, '2018-01-25', 'Removed an incorrect charge');
+INSERT INTO Records VALUES (0010, 10, 7028402, '2018-01-31', 'Increased the account minimum balance');
+INSERT INTO Records VALUES (0903, 11, 5382083, '2017-03-09','Opened a new credit card for client');
+INSERT INTO Records VALUES (0310, 7, 3502059, '2018-02-19', 'Removed an incorrect charge');
+INSERT INTO Records VALUES (0110, 4, 3284732, '2018-01-15', 'Increased monthly interest rate');
+INSERT INTO Records VALUES (0092, 4, 6094813, '2017-10-10', 'Opened a new savings account for client');
+INSERT INTO Records VALUES (0123, 2, 4913205, '2018-02-20', 'Increased account monthly fee.');
+
+
+
+
+INSERT INTO Appointments VALUES(6 ,9, 1,'2018-01-01', '11:45:00');
+INSERT INTO Appointments VALUES(5 ,1, 1,'2018-02-18', '14:15:00');
+INSERT INTO Appointments VALUES(4 ,7, 1,'2018-01-04', '15:00:00');
+INSERT INTO Appointments VALUES(3 ,6, 1,'2017-06-01', '09:30:00');
+INSERT INTO Appointments VALUES(2 ,2, 1,'2017-04-01', '10:00:00');
+INSERT INTO Appointments VALUES(1,3, 1,'2017-03-07', '08:15:00');
+INSERT INTO Appointments VALUES(7,4, 1,'2017-01-08', '17:00:00');
+INSERT INTO Appointments VALUES(8 ,5, 1,'2017-11-15', '16:30:00');
+INSERT INTO Appointments VALUES(9 ,8, 1,'2017-12-21', '12:00:00');
+
+INSERT INTO Loans VALUES(1,5,0.5,1000,'2017-01-15');
+INSERT INTO Loans VALUES(2,4,0.5,2000,'2017-02-20');
+INSERT INTO Loans VALUES(3,3,0.5,3000,'2017-03-16');
+INSERT INTO Loans VALUES(4,2,0.5,4000,'2017-04-19');
+INSERT INTO Loans VALUES(5,1,0.5,5000,'2018-01-19');
+INSERT INTO Loans VALUES(6,9,0.5,6000,'2018-01-20');
+INSERT INTO Loans VALUES(7,8,0.5,7000,'2018-01-25');
+INSERT INTO Loans VALUES(8,7,0.5,8000,'2018-02-01');
+INSERT INTO Loans VALUES(9,6,0.5,9000,'2018-02-06');
+INSERT INTO Loans VALUES(10,10,0.5,10000,'2018-02-10');
+
+INSERT INTO Payments VALUES(1,11,200,'2017-05-10');
+INSERT INTO Payments VALUES(2,11,200,'2017-06-10');
+INSERT INTO Payments VALUES(3,11,200,'2017-07-10');
+INSERT INTO Payments VALUES(4,11,200,'2017-08-10');
+INSERT INTO Payments VALUES(5,11,1000,'2018-03-10');
+INSERT INTO Payments VALUES(6,11,1000,'2018-04-10');
+INSERT INTO Payments VALUES(7,11,1000,'2018-03-10');
+INSERT INTO Payments VALUES(8,11,1000,'2018-03-10');
+INSERT INTO Payments VALUES(9,11,1000,'2018-02-10');
+INSERT INTO Payments VALUES(10,11,1000,'2018-06-10');
+
+END
+
