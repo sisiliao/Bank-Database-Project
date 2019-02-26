@@ -7,4 +7,4 @@ Database design for Bank Model.
 An interactive UI written in JAVA allows bank administration people to do database operation.
 
 # Preview
-> ![showcase](/ER.png)
+>![showcase](/ER.png)
